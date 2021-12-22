@@ -10,4 +10,5 @@ from itemadapter import ItemAdapter
 
 class BayutPipeline:
     def process_item(self, item, spider):
-        return item
+        if isinstance(item, spider.items.Author):
+            return item
