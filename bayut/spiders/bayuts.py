@@ -16,7 +16,7 @@ class DatasSpider(scrapy.Spider):
             if link.css("a.b7880daf").attrib['title']=="Next":
                 next_page=link.css('a.b7880daf').attrib['href']
 #       go to next pages                
-        if next_page is not None: file
+        if next_page is not None:
             yield response.follow(next_page,callback=self.parse,dont_filter=True)
             
     def parse_data(self,response):
