@@ -2,7 +2,7 @@ import scrapy
 from .items import Author
 
 class DatasSpider(scrapy.Spider):
-    name = 'datas'
+    name = 'bayuts'
     domain_name = ['bayut.com']
     start_urls = ['https://www.bayut.com/to-rent/property/dubai/']
     def parse(self, response):
