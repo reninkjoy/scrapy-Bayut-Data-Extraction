@@ -1,21 +1,20 @@
 import scrapy
+from .items import Author
 
-
-class BayutsSpider(scrapy.Spider):
-    name = 'bayuts'
-    allowed_domains = ['https://www.bayut.com/to-rent/property/dubai/']
-    start_urls = ['http://https://www.bayut.com/to-rent/property/dubai//']
-
+class DatasSpider(scrapy.Spider):
+    name = 'datas'
+    domain_name = ['bayut.com']
+    start_urls = ['https://www.bayut.com/to-rent/property/dubai/']
     def parse(self, response):
         for link in response.css('div._4041eb80'):
+            pages = link.css('a._287661cb').attrib['href']
+
             yield response.follow(pages,callback=self.parse_data)
-                
         for link in response.css('a.b7880daf'):
             if link.css("a.b7880daf").attrib['title']=="Next":
                 next_page=link.css('a.b7880daf').attrib['href']
         if next_page is not None:
             yield response.follow(next_page,callback=self.parse,dont_filter=True)
-            
     def parse_data(self,response):
         for ref in response.css('span._812aa185'):
             if ref.css('span._812aa185').attrib['aria-label']=='Reference':
@@ -60,3 +59,4 @@ class BayutsSpider(scrapy.Spider):
         if response.css("span._2a806e1e::text").getall()!= None:
             author["description"]=" ".join(response.css("span._2a806e1e::text").getall())
         yield author
+
