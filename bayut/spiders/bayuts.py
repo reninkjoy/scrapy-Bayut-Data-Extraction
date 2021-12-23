@@ -1,4 +1,4 @@
-iimport scrapy
+import scrapy
 from .items import Author
 
 class DatasSpider(scrapy.Spider):
@@ -18,7 +18,7 @@ class DatasSpider(scrapy.Spider):
 
 #       go to next pages
         if next_page is not None:
-            yield response.follow(next_page,callback=self.parse,dont_filter=True)
+            yield response.follow(next_page,callback=self.parse)
 
     def parse_data(self,response):
 #       setting order load in to json
@@ -39,23 +39,32 @@ class DatasSpider(scrapy.Spider):
         author['description']=None
 
 # #      fetch data
-        author['property_id']=response.xpath("//span[@aria-label='Reference']/text()").get()
-        author['purpose']=response.xpath("//span[@aria-label='Purpose']/text()").get()
-        author['type']=response.xpath("//span[@aria-label='Type']/text()").get()
-        author['added_on']=response.xpath("//span[@aria-label='Reactivated date']/text()").get()
-        author["furnishing"]=response.xpath("//span[@aria-label='Furnishing']/text()").get()
+        if response.xpath("//span[@aria-label='Reference']/text()").get()!=None:
+            author['property_id']=response.xpath("//span[@aria-label='Reference']/text()").get()
+        if response.xpath("//span[@aria-label='Purpose']/text()").get()!=None:
+            author['purpose']=response.xpath("//span[@aria-label='Purpose']/text()").get()
+        if response.xpath("//span[@aria-label='Type']/text()").get()!=None:
+            author['type']=response.xpath("//span[@aria-label='Type']/text()").get()
+        if response.xpath("//span[@aria-label='Reactivated date']/text()").get()!=None:
+            author['added_on']=response.xpath("//span[@aria-label='Reactivated date']/text()").get()
+        if response.xpath("//span[@aria-label='Furnishing']/text()").get()!=None:
+            author["furnishing"]=response.xpath("//span[@aria-label='Furnishing']/text()").get()
         price={"currency": None,"amount":None}
         price['currency']=response.xpath("//span[@aria-label='Currency']/text()").get()
         price['amount']=response.xpath("//span[@aria-label='Price']/text()").get()
         author['price']=price
         author['location']=response.xpath("//div[@aria-label='Property header']/text()").get()
         bed_bath_size={"bedrooms":None,"bathrooms":None,"size":None }
-        bed_bath_size['bedrooms']=response.xpath("//span[@class='fc2d1086']/text()").get()
-        bed_bath_size['bathrooms']=response.xpath("//span[@class='fc2d1086']/text()").getall()[1]
+        if response.xpath("//span[@class='fc2d1086']/text()").get()!=None:
+            bed_bath_size['bedrooms']=int(response.xpath("//span[@class='fc2d1086']/text()").get().replace("Beds","").replace("Bed",""))
+        if response.xpath("//span[@class='fc2d1086']/text()").getall()[1]!=None:
+            bed_bath_size['bathrooms']=int(response.xpath("//span[@class='fc2d1086']/text()").getall()[1].replace("Baths","").replace("Bath",""))
         bed_bath_size['size']=response.xpath("//span[@class='fc2d1086']//span/text()").get()
         author['bed_bath_size']=bed_bath_size
-        author["permit_number"]=response.xpath("//div[@class='_74093213']//span/text()").getall()[-1]
-        author["agent_name"]=response.xpath("//span[@class='_55e4cba0']/text()").get()
+        if response.xpath("//div[@class='_74093213']//span/text()").getall()!=None:
+            author["permit_number"]=response.xpath("//div[@class='_74093213']//span/text()").getall()[-1]
+        if response.xpath("//span[@class='_55e4cba0']/text()").get()!=None:
+            author["agent_name"]=response.xpath("//span[@class='_55e4cba0']/text()").get()
         author["image_url"]=response.xpath("//img[@src][@aria-label='Cover photo']/@src").get()
         author["breadcrumbs"]=">".join(response.xpath("//span[@class='_327a3afc']/text()").getall()[1:])
         author["amenities"]=response.xpath("//span[@class='_005a682a']/text()").extract()
@@ -63,4 +72,3 @@ class DatasSpider(scrapy.Spider):
 
         yield author
 #
-
